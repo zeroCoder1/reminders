@@ -20,4 +20,4 @@ coverage/
 /web/out
 
 # Railway
-.railway
+.railway/cache

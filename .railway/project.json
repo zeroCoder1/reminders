@@ -1,0 +1,13 @@
+{
+    "services": [
+      {
+        "name": "service",
+        "rootDirectory": "service"
+      },
+      {
+        "name": "web",
+        "rootDirectory": "web"
+      }
+    ]
+  }
+  
