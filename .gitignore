@@ -1,0 +1,23 @@
+# Root-level Git Ignore
+.DS_Store
+.env
+.env.local
+.env.*.local
+.vscode/
+*.log
+node_modules/
+dist/
+coverage/
+
+# Go specific
+/go-service/main
+/go-service/*.exe
+/go-service/*.out
+
+# Next.js build output
+/web/.next
+/web/node_modules
+/web/out
+
+# Railway
+.railway
