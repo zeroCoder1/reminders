@@ -8,18 +8,80 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
-func loginHandler(w http.ResponseWriter, r *http.Request) {
-	email := r.URL.Query().Get("email")
-	if email == "" {
-		http.Error(w, "Email is required", http.StatusBadRequest)
+func signupHandler(w http.ResponseWriter, r *http.Request) {
+	var user struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
-	w.Write([]byte("Logged in as: " + email))
+
+	if user.Email == "" || user.Password == "" {
+		http.Error(w, "Email and password required", http.StatusBadRequest)
+		return
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		http.Error(w, "Failed to hash password", http.StatusInternalServerError)
+		return
+	}
+
+	_, err = DB.Exec(`INSERT INTO users (email, password_hash) VALUES (?, ?)`, user.Email, string(hash))
+	if err != nil {
+		log.Println("Signup insert error:", err)
+		http.Error(w, "Signup failed", http.StatusInternalServerError)
+		return
+	}
+
+	w.Write([]byte("Signup successful"))
+}
+
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+	var creds struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&creds); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	row := DB.QueryRow(`SELECT password_hash FROM users WHERE email = ?`, creds.Email)
+
+	var hashedPassword string
+	if err := row.Scan(&hashedPassword); err != nil {
+		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		return
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(creds.Password)); err != nil {
+		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		return
+	}
+
+	token, err := generateJWT(creds.Email)
+	if err != nil {
+		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"token": token})
 }
 
 func addSubscription(w http.ResponseWriter, r *http.Request) {
+	email, err := validateJWT(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	var sub Subscription
 	if err := json.NewDecoder(r.Body).Decode(&sub); err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
@@ -27,6 +89,7 @@ func addSubscription(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sub.ID = uuid.NewString()
+	sub.Email = email // enforce ownership
 
 	startDate, err := time.Parse("2006-01-02", sub.StartDate)
 	if err != nil {
@@ -61,13 +124,19 @@ func addSubscription(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteSubscription(w http.ResponseWriter, r *http.Request) {
+	email, err := validateJWT(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	id := r.URL.Query().Get("id")
 	if id == "" {
 		http.Error(w, "Subscription ID is required", http.StatusBadRequest)
 		return
 	}
 
-	_, err := DB.Exec(`ALTER TABLE subscriptions DELETE WHERE id = ?`, id)
+	_, err = DB.Exec(`ALTER TABLE subscriptions DELETE WHERE id = ? AND email = ?`, id, email)
 	if err != nil {
 		log.Println("Delete error:", err)
 		http.Error(w, "Delete failed", http.StatusInternalServerError)
@@ -78,9 +147,9 @@ func deleteSubscription(w http.ResponseWriter, r *http.Request) {
 }
 
 func listSubscriptions(w http.ResponseWriter, r *http.Request) {
-	email := r.URL.Query().Get("email")
-	if email == "" {
-		http.Error(w, "Email is required", http.StatusBadRequest)
+	email, err := validateJWT(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
