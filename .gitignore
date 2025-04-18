@@ -18,6 +18,3 @@ coverage/
 /web/.next
 /web/node_modules
 /web/out
-
-# Railway
-.railway/cache
