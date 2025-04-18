@@ -22,7 +22,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   if (!token) return { redirect: { destination: '/', permanent: false } }
 
   try {
-    const res = await axios.get('https://your-backend-url/subscriptions/list', {
+    const res = await axios.get('api/subscriptions/list', {
       headers: { Authorization: `Bearer ${token}` }
     })
     return { props: { subscriptions: res.data } }

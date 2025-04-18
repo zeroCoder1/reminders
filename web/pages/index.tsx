@@ -11,7 +11,7 @@ export default function Login() {
   const handleLogin = async (e: any) => {
     e.preventDefault()
     try {
-      const res = await axios.post('https://reminders-production-2ada.up.railway.app/login', { email, password })
+      const res = await axios.post('/api/login', { email, password })
       if (res.data?.success) router.push('/dashboard')
     } catch (err: any) {
       setError(err.response?.data || 'Login failed')

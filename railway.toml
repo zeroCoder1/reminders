@@ -1,0 +1,5 @@
+[services.web]
+root = "web"
+
+[services.service]
+root = "service"
