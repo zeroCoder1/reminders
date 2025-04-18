@@ -8,6 +8,7 @@ import (
 func main() {
 	InitDB()
 
+	http.HandleFunc("/signup", signupHandler)
 	http.HandleFunc("/login", loginHandler)
 	http.HandleFunc("/subscriptions/add", addSubscription)
 	http.HandleFunc("/subscriptions/delete", deleteSubscription)
