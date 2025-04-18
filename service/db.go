@@ -43,15 +43,17 @@ func InitDB() {
 func ensureTableExists() {
 	query := `
     CREATE TABLE IF NOT EXISTS subscriptions (
-        id UUID,
-        email String,
-        type String,
-        name String,
-        start_date Date,
-        end_date Nullable(Date),
-        created_at DateTime DEFAULT now()
-    ) ENGINE = MergeTree()
-    ORDER BY id;
+    id UUID,
+    email String,
+    type String,
+    name String,
+    start_date Date,
+    end_date Nullable(Date),
+    currency String,
+    amount Float32,
+    created_at DateTime DEFAULT now()
+) ENGINE = MergeTree()
+ORDER BY id;
     `
 	if _, err := DB.Exec(query); err != nil {
 		log.Fatalf("❌ Failed to create table: %v", err)
