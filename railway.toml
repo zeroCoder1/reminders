@@ -9,5 +9,4 @@ healthcheckTimeout = 100
 root = "service"
 buildCommand = "go build -o main ."
 startCommand = "./main"
-healthcheckPath = "/health"  # optional if you want to add one in Go
 healthcheckTimeout = 100
