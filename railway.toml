@@ -4,9 +4,14 @@ buildCommand = "npm run build"
 startCommand = "npm run start"
 healthcheckPath = "/"
 healthcheckTimeout = 100
+restartPolicyType = "always"
+restartPolicyMaxRetries = 5
 
 [services.service]
 root = "service"
 buildCommand = "go build -o main ."
 startCommand = "./main"
+healthcheckPath = "/health"
 healthcheckTimeout = 100
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
