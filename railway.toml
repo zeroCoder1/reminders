@@ -2,14 +2,8 @@
 root = "web"
 buildCommand = "npm run build"
 startCommand = "npm run start"
-healthcheckTimeout = 100
-restartPolicyType = "always"
-restartPolicyMaxRetries = 5
 
 [services.service]
 root = "service"
 buildCommand = "go build -o main ."
 startCommand = "./main"
-healthcheckTimeout = 100
-restartPolicyType = "on_failure"
-restartPolicyMaxRetries = 3
