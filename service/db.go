@@ -14,19 +14,19 @@ import (
 var DB *sql.DB
 
 func InitDB() {
-	dsn := fmt.Sprintf("clickhouse://%s:%s@%s:%s/%s?protocol=http",
+	dsn := fmt.Sprintf("clickhouse://%s:%s@%s:%s/%s",
 		os.Getenv("CLICKHOUSE_USER"),
 		os.Getenv("CLICKHOUSE_PASSWORD"),
 		os.Getenv("CLICKHOUSE_HOST"),
 		os.Getenv("CLICKHOUSE_PORT"),
 		os.Getenv("CLICKHOUSE_DATABASE"),
 	)
+	log.Printf("Connecting to ClickHouse with DSN: %s", dsn) // Add this for debugging
 
 	var err error
 	DB, err = sql.Open("clickhouse", dsn)
 	if err != nil {
-		log.Printf("❌ Failed to create ClickHouse connection: %v", err)
-		return
+		log.Fatalf("❌ Failed to connect to ClickHouse: %v", err)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -38,7 +38,6 @@ func InitDB() {
 	}
 
 	log.Println("✅ Connected to ClickHouse")
-
 	ensureTablesExist()
 }
 
