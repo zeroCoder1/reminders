@@ -38,7 +38,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const token = ctx.req.cookies['jwt']
   if (!token) return { redirect: { destination: '/', permanent: false } }
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `http://${ctx.req.headers.host}`
+    const baseUrl = process.env.API_URL || process.env.NEXT_PUBLIC_BASE_URL || 'https://reminders-production-2ada.up.railway.app'
     const res = await axios.get(`${baseUrl}/api/subscriptions/list`, {
       headers: { cookie: ctx.req.headers.cookie || '' }
     })

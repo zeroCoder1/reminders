@@ -25,6 +25,8 @@ export default function AuthPage() {
         if (res.data?.token) router.push('/dashboard')
       }
     } catch (err: any) {
+      // Log error for debugging
+      console.error('Auth error:', err?.response?.status, err?.response?.data, err?.message)
       const msg = err.response?.data
       setError(typeof msg === 'string' ? msg : msg?.error || (signup ? 'Signup failed' : 'Login failed'))
     }
