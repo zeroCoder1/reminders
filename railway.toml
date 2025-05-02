@@ -1,9 +1,11 @@
-[services.web]
+[[services]]
+name = "web"
 root = "web"
 buildCommand = "npm run build"
 startCommand = "npm run start"
 
-[services.service]
+[[services]]
+name = "service"
 root = "service"
-buildCommand = "go build -o main ."
-startCommand = "./main"
+buildCommand = "go build -o out ."
+startCommand = "./out"
