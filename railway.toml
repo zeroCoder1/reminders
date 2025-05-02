@@ -9,3 +9,6 @@ name = "service"
 root = "service"
 buildCommand = "go build -o out ."
 startCommand = "./out"
+
+[default]
+service = "web"
