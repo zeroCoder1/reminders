@@ -1,0 +1,6 @@
+[phases.setup]
+commands = []
+[phases.build]
+commands = []
+[phases.start]
+commands = []
