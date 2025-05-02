@@ -1,6 +1,8 @@
 module github.com/zeroCoder1/go-service
 
-go 1.22.2
+go 1.23.0
+
+toolchain go1.24.2
 
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.34.0
