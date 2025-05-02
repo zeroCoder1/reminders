@@ -1,3 +1,4 @@
+import { GetServerSideProps } from 'next'
 import { useState } from 'react'
 import { useRouter } from 'next/router'
 import axios from 'axios'
@@ -12,7 +13,10 @@ export default function Login() {
     e.preventDefault()
     try {
       const res = await axios.post('/api/login', { email, password })
-      if (res.data?.success) router.push('/dashboard')
+      if (res.data?.token) {
+        document.cookie = `jwt=${res.data.token}; path=/`
+        router.push('/dashboard')
+      }
     } catch (err: any) {
       setError(err.response?.data || 'Login failed')
     }
@@ -29,4 +33,12 @@ export default function Login() {
       </form>
     </main>
   )
+}
+
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const token = ctx.req.cookies['jwt']
+  if (token) {
+    return { redirect: { destination: '/dashboard', permanent: false } }
+  }
+  return { props: {} }
 }

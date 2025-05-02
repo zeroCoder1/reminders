@@ -22,8 +22,9 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   if (!token) return { redirect: { destination: '/', permanent: false } }
 
   try {
-    const res = await axios.get('api/subscriptions/list', {
-      headers: { Authorization: `Bearer ${token}` }
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `http://${ctx.req.headers.host}`
+    const res = await axios.get(`${baseUrl}/api/subscriptions/list`, {
+      headers: { Cookie: `jwt=${token}` }
     })
     return { props: { subscriptions: res.data } }
   } catch (e) {
